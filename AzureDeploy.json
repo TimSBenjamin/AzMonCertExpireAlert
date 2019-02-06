@@ -27,33 +27,33 @@
       }
     },       
   "variables": {
-  "alertStatus": "true",
-  "alertTag": "hidden-link:/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
-  "alertSource":{
-      "Query":"union workspace('servicews').Update, app('serviceapp').requests | summarize AggregatedValue = count() by bin(TimeGenerated,1h), Classification",
-      "Resource1": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews", 
-      "Resource2": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.insights/components/serviceapp",
-      "SourceId": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
-      "Type":"ResultCount"
-       },
-   "alertSchedule":{
-       "Frequency": 15,
-       "Time": 60
-       },
-   "alertActions":{
-       "SeverityLevel": "4",
-       "SuppressTimeinMin": 20
-       },
-    "alertTrigger":{
-      "Operator":"GreaterThan",
-      "Threshold":"1"
-       },
-    "metricMeasurement": {
-        "thresholdOperator": "Equal",
-        "threshold": "1",
-        "metricTriggerType": "Consecutive",
-        "metricColumn": "Classification"
-    },
+    "alertStatus": "true",
+    "alertTag": "hidden-link:/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
+    "alertSource":{
+        "Query":"union workspace('servicews').Update, app('serviceapp').requests | summarize AggregatedValue = count() by bin(TimeGenerated,1h), Classification",
+        "Resource1": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews", 
+        "Resource2": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.insights/components/serviceapp",
+        "SourceId": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
+        "Type":"ResultCount"
+        },
+    "alertSchedule":{
+        "Frequency": 15,
+        "Time": 60
+        },
+    "alertActions":{
+        "SeverityLevel": "4",
+        "SuppressTimeinMin": 20
+        },
+        "alertTrigger":{
+        "Operator":"GreaterThan",
+        "Threshold":"1"
+        },
+        "metricMeasurement": {
+            "thresholdOperator": "Equal",
+            "threshold": "1",
+            "metricTriggerType": "Consecutive",
+            "metricColumn": "Classification"
+        },
      "actionGrp":{
       "ActionGroup": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.insights/actiongroups/sampleAG",
       "Subject": "Customized Email Header",
