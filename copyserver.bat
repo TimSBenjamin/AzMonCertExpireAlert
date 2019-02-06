@@ -1,0 +1,1 @@
+robocopy c:\intel c:\inteldel /mir /timfix /mot:30 /r:3 /w:3

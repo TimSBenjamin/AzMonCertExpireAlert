@@ -3,24 +3,34 @@
   "contentVersion": "1.0.0.0", 
   "parameters": {
       "alertLocation": {
-            "type": "string",
-            "allowedValues": [
+        "type": "string",
+        "allowedValues": [
                 "East US",
                 "West Europe"
             ],
-      "defaultValue": "East US",
-      "metadata": {
+        "defaultValue": "East US",
+        "metadata": {
             "description": "Region Name for your Log Analytics Workspace"
+        }
       },
-      "alertName": "sample log alert",
-        "alertDescription": "Sample log search alert"
-    }    
-  },   
+      "alertName": {
+          "type": "string",
+          "metadata": {
+              "description": "Name of your alert"
+          }
+      }, 
+      "alertDescription": {
+          "type": "string",
+          "metadata": {
+              "description": "Description of your Alert"
+          }
+      }
+    },       
   "variables": {
   "alertStatus": "true",
   "alertTag": "hidden-link:/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
   "alertSource":{
-      "Query":"union workspace("servicews").Update, app('serviceapp').requests | summarize AggregatedValue = count() by bin(TimeGenerated,1h), Classification",
+      "Query":"union workspace('servicews').Update, app('serviceapp').requests | summarize AggregatedValue = count() by bin(TimeGenerated,1h), Classification",
       "Resource1": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews", 
       "Resource2": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.insights/components/serviceapp",
       "SourceId": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
@@ -51,13 +61,13 @@
       }
 },
 "resources":[ {
-  "name":"[variables('alertName')]",
+  "name":"[parameters('alertName')]",
   "type":"Microsoft.Insights/scheduledQueryRules",
   "apiVersion": "2018-04-16",
-  "location": "[variables('alertLocation')]",
+  "location": "[parameters('alertLocation')]",
   "tags":{"[variables('alertTag')]": "Resource"},
   "properties":{
-     "description": "[variables('alertDescr')]",
+     "description": "[parameters('alertDescription')]",
      "enabled": "[variables('alertStatus')]",
      "source": {
          "query": "[variables('alertSource').Query]",
