@@ -6,9 +6,10 @@
         "type": "string",
         "allowedValues": [
                 "East US",
-                "West Europe"
+                "West Europe",
+                "Southeast Asia"
             ],
-        "defaultValue": "East US",
+        "defaultValue": "Southeast Asia",
         "metadata": {
             "description": "Region Name for your Log Analytics Workspace"
         }
