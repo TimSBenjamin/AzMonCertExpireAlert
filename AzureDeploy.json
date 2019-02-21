@@ -25,6 +25,12 @@
           "metadata": {
               "description": "Description of your Alert"
           }
+      },
+      "actionGroup": {
+          "type": "string",
+          "metadata": {
+              
+          }
       }
     },       
   "variables": {
@@ -61,7 +67,25 @@
       "Webhook": "{ \"alertname\":\"#alertrulename\", \"IncludeSearchResults\":true }"
       }
 },
-"resources":[ {
+"resources":[
+    {
+        "name": "string",
+        "type": "Microsoft.OperationalInsights/workspaces",
+        "apiVersion": "2015-11-01-preview",
+        "location": "string",
+        "tags": {},
+        "properties": {
+          "source": "string",
+          "customerId": "string",
+          "portalUrl": "string",
+          "sku": {
+            "name": "string"
+          },
+          "retentionInDays": "integer"
+        },
+        "resources": []
+      }, 
+    {
   "name":"[parameters('alertName')]",
   "type":"Microsoft.Insights/scheduledQueryRules",
   "apiVersion": "2018-04-16",
