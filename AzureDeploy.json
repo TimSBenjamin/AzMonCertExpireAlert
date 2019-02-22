@@ -83,7 +83,16 @@
           },
           "retentionInDays": "integer"
         },
-        "resources": []
+        "resources": [
+            {
+                "name": "string",
+                "type": "Microsoft.OperationalInsights/workspaces/dataSources",
+                "apiVersion": "2015-11-01-preview",
+                "tags": {},
+                "properties": {},
+                "kind": "string"
+              }    
+        ]
       }, 
     {
   "name":"[parameters('alertName')]",
