@@ -29,12 +29,21 @@
       "actionGroup": {
           "type": "string",
           "metadata": {
-              
+            "description": "Action Group that your alert will use"
+          }
+      },
+      "alertStatus": {
+          "type": "bool",
+          "defaultValue": "true"
+      },
+      "LAworkspaceName": {
+          "type": "string",
+          "metadata": {
+              "description": "Workspace that you want to collect the IIS logs and alert from"
           }
       }
     },       
   "variables": {
-    "alertStatus": "true",
     "alertTag": "hidden-link:/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
     "alertSource":{
         "Query":"union workspace('servicews').Update, app('serviceapp').requests | summarize AggregatedValue = count() by bin(TimeGenerated,1h), Classification",
@@ -60,40 +69,26 @@
             "threshold": "1",
             "metricTriggerType": "Consecutive",
             "metricColumn": "Classification"
-        },
-     "actionGrp":{
-      "ActionGroup": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.insights/actiongroups/sampleAG",
-      "Subject": "Customized Email Header",
-      "Webhook": "{ \"alertname\":\"#alertrulename\", \"IncludeSearchResults\":true }"
-      }
+        }
 },
 "resources":[
     {
-        "name": "string",
-        "type": "Microsoft.OperationalInsights/workspaces",
+        "name": "[concat(parameters('LAworkspaceName'), '/', 'IISCertExpireAlert')]",
+        "type": "Microsoft.OperationalInsights/workspaces/datasources",
         "apiVersion": "2015-11-01-preview",
-        "location": "string",
-        "tags": {},
+        "kind": "WindowsEvent",
         "properties": {
-          "source": "string",
-          "customerId": "string",
-          "portalUrl": "string",
-          "sku": {
-            "name": "string"
-          },
-          "retentionInDays": "integer"
-        },
-        "resources": [
-            {
-                "name": "string",
-                "type": "Microsoft.OperationalInsights/workspaces/dataSources",
-                "apiVersion": "2015-11-01-preview",
-                "tags": {},
-                "properties": {},
-                "kind": "string"
-              }    
-        ]
-      }, 
+            "eventLogName": "###",
+            "eventTypes": [
+                {
+                    "eventType": "Error"
+                },
+                {
+                    "eventType": "Warning"
+                }
+            ]
+        }
+    },
     {
   "name":"[parameters('alertName')]",
   "type":"Microsoft.Insights/scheduledQueryRules",
