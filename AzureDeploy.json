@@ -39,7 +39,7 @@
       "LAworkspaceName": {
           "type": "string",
           "metadata": {
-              "description": "Workspace that you want to collect the IIS logs and alert from"
+            "description": "Workspace that you want to collect the IIS logs and alert from"            
           }
       }
     },       
@@ -78,13 +78,16 @@
         "apiVersion": "2015-11-01-preview",
         "kind": "WindowsEvent",
         "properties": {
-            "eventLogName": "###",
+            "eventLogName": "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational",
             "eventTypes": [
                 {
                     "eventType": "Error"
                 },
                 {
                     "eventType": "Warning"
+                },
+                {
+                    "eventType": "Information"
                 }
             ]
         }
@@ -93,11 +96,11 @@
   "name":"[parameters('alertName')]",
   "type":"Microsoft.Insights/scheduledQueryRules",
   "apiVersion": "2018-04-16",
-  "location": "[parameters('alertLocation')]",
+  "location": "[reference(concat('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName')), '2015-11-01-preview').location]", 
   "tags":{"[variables('alertTag')]": "Resource"},
   "properties":{
      "description": "[parameters('alertDescription')]",
-     "enabled": "[variables('alertStatus')]",
+     "enabled": "[parameters('alertStatus')]",
      "source": {
          "query": "[variables('alertSource').Query]",
          "authorizedResources": "[concat(array(variables('alertSource').Resource1), array(variables('alertSource').Resource2))]",
@@ -113,9 +116,9 @@
          "severity":"[variables('alertActions').SeverityLevel]",
          "throttlingInMin": "[variables('alertActions').SuppressTimeinMin]",
          "aznsAction":{
-             "actionGroup": "[array(variables('actionGrp').ActionGroup)]",
-             "emailSubject":"[variables('actionGrp').Subject]",
-             "customWebhookPayload":"[variables('actionGrp').Webhook]"
+             "actionGroup": "[array(parameters('actionGroup').ActionGroup)]",
+             "emailSubject":"[parameters('actionGroup').Subject]",
+             "customWebhookPayload":"[parameters('actionGroup').Webhook]"
          },
      "trigger":{
              "thresholdOperator":"[variables('alertTrigger').Operator]",
