@@ -2,46 +2,35 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0", 
   "parameters": {
-      "alertLocation": {
-        "type": "string",
-        "allowedValues": [
-                "East US",
-                "West Europe",
-                "Southeast Asia"
-            ],
-        "defaultValue": "Southeast Asia",
-        "metadata": {
-            "description": "Region Name for your Log Analytics Workspace"
-        }
-      },
       "alertName": {
           "type": "string",
+          "defaultValue": "[concat(parameters('LAworkspaceName'), '/', 'IISCertExpireAlert')]",
           "metadata": {
               "description": "Name of your alert"
           }
-      }, 
+        }, 
       "alertDescription": {
           "type": "string",
           "metadata": {
               "description": "Description of your Alert"
           }
-      },
+        },
       "actionGroup": {
           "type": "string",
           "metadata": {
             "description": "Action Group that your alert will use"
           }
-      },
+        },
       "alertStatus": {
           "type": "bool",
           "defaultValue": "true"
-      },
+        },
       "LAworkspaceName": {
           "type": "string",
           "metadata": {
             "description": "Workspace that you want to collect the IIS logs and alert from"            
-          }
-      }
+            }
+        }
     },       
   "variables": {
     "alertTag": "hidden-link:/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
@@ -73,65 +62,73 @@
 },
 "resources":[
     {
-        "name": "[concat(parameters('LAworkspaceName'), '/', 'IISCertExpireAlert')]",
-        "type": "Microsoft.OperationalInsights/workspaces/datasources",
-        "apiVersion": "2015-11-01-preview",
-        "kind": "WindowsEvent",
-        "properties": {
-            "eventLogName": "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational",
-            "eventTypes": [
-                {
-                    "eventType": "Error"
-                },
-                {
-                    "eventType": "Warning"
-                },
-                {
-                    "eventType": "Information"
+    "apiVersion": "2017-05-10",
+    "name": "[concat(parameters('LAworkspaceName'), '/CollectIISCertLog')]",
+    "type": "Microsoft.Resources/deployments",
+    "properties": {
+        "mode": "Incremental",
+        "template": {
+            "name": "[concat('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName'))]",
+            "type": "Microsoft.OperationalInsights/workspaces/datasources",
+            "apiVersion": "2015-11-01-preview",
+            "kind": "WindowsEvent",
+            "properties": {                
+                "eventLogName": "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational",
+                "eventTypes": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    },
+                    {
+                        "eventType": "Information"
+                    }
+                    ]
                 }
-            ]
+            }
         }
     },
     {
-  "name":"[parameters('alertName')]",
-  "type":"Microsoft.Insights/scheduledQueryRules",
-  "apiVersion": "2018-04-16",
-  "location": "[reference(concat('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName')), '2015-11-01-preview').location]", 
-  "tags":{"[variables('alertTag')]": "Resource"},
-  "properties":{
-     "description": "[parameters('alertDescription')]",
-     "enabled": "[parameters('alertStatus')]",
-     "source": {
-         "query": "[variables('alertSource').Query]",
-         "authorizedResources": "[concat(array(variables('alertSource').Resource1), array(variables('alertSource').Resource2))]",
-         "dataSourceId": "[variables('alertSource').SourceId]",
-         "queryType":"[variables('alertSource').Type]"
-     },
-    "schedule":{
-         "frequencyInMinutes": "[variables('alertSchedule').Frequency]",
-         "timeWindowInMinutes": "[variables('alertSchedule').Time]"
-     },
-    "action":{
-         "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
-         "severity":"[variables('alertActions').SeverityLevel]",
-         "throttlingInMin": "[variables('alertActions').SuppressTimeinMin]",
-         "aznsAction":{
-             "actionGroup": "[array(parameters('actionGroup').ActionGroup)]",
-             "emailSubject":"[parameters('actionGroup').Subject]",
-             "customWebhookPayload":"[parameters('actionGroup').Webhook]"
-         },
-     "trigger":{
-             "thresholdOperator":"[variables('alertTrigger').Operator]",
-             "threshold":"[variables('alertTrigger').Threshold]",
-             "metricTrigger":{
-                 "thresholdOperator": "[variables('metricMeasurement').thresholdOperator]",
-                 "threshold": "[variables('metricMeasurement').threshold]",
-                 "metricColumn": "[variables('metricMeasurement').metricColumn]",
-                 "metricTriggerType": "[variables('metricMeasurement').metricTriggerType]"
-             }
-         }
-     }
-   }
- }
+    "name":"[parameters('alertName')]",
+    "type":"Microsoft.Insights/scheduledQueryRules",
+    "apiVersion": "2018-04-16",
+    "location": "[reference(concat('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName')), '2015-11-01-preview').location]", 
+    "tags":{"[variables('alertTag')]": "Resource"},
+    "properties":{
+        "description": "[parameters('alertDescription')]",
+        "enabled": "[parameters('alertStatus')]",
+        "source": {
+            "query": "[variables('alertSource').Query]",
+            "authorizedResources": "[concat(array(variables('alertSource').Resource1), array(variables('alertSource').Resource2))]",
+            "dataSourceId": "[variables('alertSource').SourceId]",
+            "queryType":"[variables('alertSource').Type]"
+        },
+        "schedule":{
+            "frequencyInMinutes": "[variables('alertSchedule').Frequency]",
+            "timeWindowInMinutes": "[variables('alertSchedule').Time]"
+        },
+        "action":{
+            "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
+            "severity":"[variables('alertActions').SeverityLevel]",
+            "throttlingInMin": "[variables('alertActions').SuppressTimeinMin]",
+            "aznsAction":{
+                "actionGroup": "[array(parameters('actionGroup').ActionGroup)]",
+                "emailSubject":"[parameters('actionGroup').Subject]",
+                "customWebhookPayload":"[parameters('actionGroup').Webhook]"
+            },
+        "trigger":{
+                "thresholdOperator":"[variables('alertTrigger').Operator]",
+                "threshold":"[variables('alertTrigger').Threshold]",
+                "metricTrigger":{
+                    "thresholdOperator": "[variables('metricMeasurement').thresholdOperator]",
+                    "threshold": "[variables('metricMeasurement').threshold]",
+                    "metricColumn": "[variables('metricMeasurement').metricColumn]",
+                    "metricTriggerType": "[variables('metricMeasurement').metricTriggerType]"
+                }
+            }
+        }
+    }
+  }
 ]
 }
