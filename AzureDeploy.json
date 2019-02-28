@@ -28,19 +28,17 @@
       "LAworkspaceName": {
           "type": "string",
           "metadata": {
-            "description": "Workspace that you want to collect the IIS logs and alert from"            
+            "description": "Workspace that you want to collect the IIS logs and alert from"
             }
         }
     },       
   "variables": {
-    "alertTag": "hidden-link:/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
     "alertSource":{
-        "Query":"union workspace('servicews').Update, app('serviceapp').requests | summarize AggregatedValue = count() by bin(TimeGenerated,1h), Classification",
-        "Resource1": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews", 
-        "Resource2": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.insights/components/serviceapp",
-        "SourceId": "/subscriptions/a123d7efg-123c-1234-5678-a12bc3defgh4/resourceGroups/contosoRG/providers/microsoft.OperationalInsights/workspaces/servicews",
+        "Query":"Event | where EventLog == \"Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational\"' | where EventID == 1003 | parse EventData with * \"<NotValidAfter>\" CertExpDate:datetime \"<\" * | project Computer, EventLevelName, RenderedDescription, CertExpDate, TimeGenerated",
+        "SourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName'))]",
         "Type":"ResultCount"
         },
+    "alertTag": "[concat('hidden-link:', variables('alertSource').SourceId)]",
     "alertSchedule":{
         "Frequency": 15,
         "Time": 60
