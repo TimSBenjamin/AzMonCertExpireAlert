@@ -11,6 +11,7 @@
         }, 
       "alertDescription": {
           "type": "string",
+          "defaultValue": "Alert for IIS certificates approaching expiration",
           "metadata": {
               "description": "Description of your Alert"
           }
@@ -27,6 +28,7 @@
         },
       "LAworkspaceName": {
           "type": "string",
+          "strongtype": "omsWorkspace",
           "metadata": {
             "description": "Workspace that you want to collect the IIS logs and alert from"
             }
@@ -50,12 +52,6 @@
         "alertTrigger":{
         "Operator":"GreaterThan",
         "Threshold":"1"
-        },
-        "metricMeasurement": {
-            "thresholdOperator": "Equal",
-            "threshold": "1",
-            "metricTriggerType": "Consecutive",
-            "metricColumn": "Classification"
         }
 },
 "resources":[
@@ -98,7 +94,6 @@
         "enabled": "[parameters('alertStatus')]",
         "source": {
             "query": "[variables('alertSource').Query]",
-            "authorizedResources": "[concat(array(variables('alertSource').Resource1), array(variables('alertSource').Resource2))]",
             "dataSourceId": "[variables('alertSource').SourceId]",
             "queryType":"[variables('alertSource').Type]"
         },
@@ -117,13 +112,7 @@
             },
         "trigger":{
                 "thresholdOperator":"[variables('alertTrigger').Operator]",
-                "threshold":"[variables('alertTrigger').Threshold]",
-                "metricTrigger":{
-                    "thresholdOperator": "[variables('metricMeasurement').thresholdOperator]",
-                    "threshold": "[variables('metricMeasurement').threshold]",
-                    "metricColumn": "[variables('metricMeasurement').metricColumn]",
-                    "metricTriggerType": "[variables('metricMeasurement').metricTriggerType]"
-                }
+                "threshold":"[variables('alertTrigger').Threshold]"
             }
         }
     }
