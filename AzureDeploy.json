@@ -4,7 +4,7 @@
   "parameters": {
       "alertName": {
           "type": "string",
-          "defaultValue": "[concat(parameters('LAworkspaceName'), '/', 'IISCertExpireAlert')]",
+          "defaultValue": "[concat(parameters('LAworkspaceName'), '-', 'IISCertExpireAlert')]",
           "metadata": {
               "description": "Name of your alert"
           }
@@ -23,12 +23,11 @@
           }
         },
       "alertStatus": {
-          "type": "bool",
+          "type": "string",
           "defaultValue": "true"
         },
       "LAworkspaceName": {
           "type": "string",
-          "strongtype": "omsWorkspace",
           "metadata": {
             "description": "Workspace that you want to collect the IIS logs and alert from"
             }
@@ -56,38 +55,31 @@
 },
 "resources":[
     {
-    "apiVersion": "2017-05-10",
-    "name": "[concat(parameters('LAworkspaceName'), '/CollectIISCertLog')]",
-    "type": "Microsoft.Resources/deployments",
-    "properties": {
-        "mode": "Incremental",
-        "template": {
-            "name": "[concat('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName'))]",
-            "type": "Microsoft.OperationalInsights/workspaces/datasources",
-            "apiVersion": "2015-11-01-preview",
-            "kind": "WindowsEvent",
-            "properties": {                
-                "eventLogName": "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational",
-                "eventTypes": [
-                    {
-                        "eventType": "Error"
-                    },
-                    {
-                        "eventType": "Warning"
-                    },
-                    {
-                        "eventType": "Information"
-                    }
-                    ]
-                }
+    "apiVersion": "2015-11-01-preview",
+    "type": "Microsoft.OperationalInsights/workspaces/datasources",
+    "location": "[resourceGroup().location]",
+    "name": "[concat(parameters('LAworkspaceName'), '/', 'datasources')]",
+    "kind": "WindowsEvent",
+    "properties": {                
+        "eventLogName": "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational",
+        "eventTypes": [
+            {
+                "eventType": "Error"
+            },
+            {
+                "eventType": "Warning"
+            },
+            {
+                "eventType": "Information"
             }
+            ]
         }
     },
     {
     "name":"[parameters('alertName')]",
     "type":"Microsoft.Insights/scheduledQueryRules",
     "apiVersion": "2018-04-16",
-    "location": "[reference(concat('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName')), '2015-11-01-preview').location]", 
+    "location": "[resourceGroup().location]", 
     "tags":{"[variables('alertTag')]": "Resource"},
     "properties":{
         "description": "[parameters('alertDescription')]",
