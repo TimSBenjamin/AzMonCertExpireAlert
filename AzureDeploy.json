@@ -114,7 +114,9 @@
                     "severity": "[variables('alertActions').SeverityLevel]",
                     "throttlingInMin": "[variables('alertActions').SuppressTimeinMin]",
                     "aznsAction": {
-                        "actionGroup": "[concat(resourcegroup().id, '/providers/microsoft.insights/actiongroups/', parameters('actionGroup'))]",
+                        "actionGroup": [
+                            "[concat(resourcegroup().id, '/providers/microsoft.insights/actiongroups/', parameters('actionGroup'))]"
+                        ],
                         "emailSubject": "[parameters('alertEmailSubject')]",
                         "customWebhookPayload": "[parameters('alertCustomWebhookPayload')]"
                     },
