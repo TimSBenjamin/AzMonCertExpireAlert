@@ -25,7 +25,7 @@
         "actionGroup": {
             "type": "string",
             "metadata": {
-                "description": "Short Name of the Action Group that your alert will use"
+                "description": "Name of the Action Group that your alert will use"
             }
         },
         "alertEmailSubject": {
@@ -90,10 +90,10 @@
             }
         },
         {
-            "name": "[parameters('alertName')]",
-            "type": "Microsoft.Insights/scheduledQueryRules",
             "apiVersion": "2018-04-16",
+            "type": "Microsoft.Insights/scheduledQueryRules",
             "location": "[resourceGroup().location]",
+            "name": "[parameters('alertName')]",
             "tags": {
                 "[variables('alertTag')]": "Resource"
             },
