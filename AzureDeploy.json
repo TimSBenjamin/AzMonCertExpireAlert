@@ -25,7 +25,7 @@
         "actionGroup": {
             "type": "string",
             "metadata": {
-                "description": "Action Group that your alert will use"
+                "description": "Short Name of the Action Group that your alert will use"
             }
         },
         "alertEmailSubject": {
