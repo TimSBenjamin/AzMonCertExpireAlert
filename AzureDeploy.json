@@ -1,113 +1,129 @@
 {
-  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.0", 
-  "parameters": {
-      "alertName": {
-          "type": "string",
-          "defaultValue": "[concat(parameters('LAworkspaceName'), '-', 'IISCertExpireAlert')]",
-          "metadata": {
-              "description": "Name of your alert"
-          }
-        }, 
-      "alertDescription": {
-          "type": "string",
-          "defaultValue": "Alert for IIS certificates approaching expiration",
-          "metadata": {
-              "description": "Description of your Alert"
-          }
-        },
-      "actionGroup": {
-          "type": "string",
-          "metadata": {
-            "description": "Action Group that your alert will use"
-          }
-        },
-      "alertStatus": {
-          "type": "string",
-          "defaultValue": "true"
-        },
-      "LAworkspaceName": {
-          "type": "string",
-          "metadata": {
-            "description": "Workspace that you want to collect the IIS logs and alert from"
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "LAworkspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Workspace that you want to collect the IIS logs and alert from"
             }
-        }
-    },       
-  "variables": {
-    "alertSource":{
-        "Query":"Event | where EventLog == \"Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational\"' | where EventID == 1003 | parse EventData with * \"<NotValidAfter>\" CertExpDate:datetime \"<\" * | project Computer, EventLevelName, RenderedDescription, CertExpDate, TimeGenerated",
-        "SourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName'))]",
-        "Type":"ResultCount"
         },
-    "alertTag": "[concat('hidden-link:', variables('alertSource').SourceId)]",
-    "alertSchedule":{
-        "Frequency": 15,
-        "Time": 60
-        },
-    "alertActions":{
-        "SeverityLevel": "4",
-        "SuppressTimeinMin": 20
-        },
-        "alertTrigger":{
-        "Operator":"GreaterThan",
-        "Threshold":"1"
-        }
-},
-"resources":[
-    {
-    "apiVersion": "2015-11-01-preview",
-    "type": "Microsoft.OperationalInsights/workspaces/datasources",
-    "location": "[resourceGroup().location]",
-    "name": "[concat(parameters('LAworkspaceName'), '/', 'datasources')]",
-    "kind": "WindowsEvent",
-    "properties": {                
-        "eventLogName": "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational",
-        "eventTypes": [
-            {
-                "eventType": "Error"
-            },
-            {
-                "eventType": "Warning"
-            },
-            {
-                "eventType": "Information"
+        "alertName": {
+            "type": "string",
+            "defaultValue": "[concat(parameters('LAworkspaceName'), '-', 'IISCertExpireAlert')]",
+            "metadata": {
+                "description": "Name of your alert"
             }
-            ]
+        },
+        "alertDescription": {
+            "type": "string",
+            "defaultValue": "Alert for IIS certificates approaching expiration",
+            "metadata": {
+                "description": "Description of your Alert"
+            }
+        },
+        "actionGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Action Group that your alert will use"
+            }
+        },
+        "alertEmailSubject": {
+            "type": "string",
+            "defaultValue": "An IIS Cert is approaching expiration",
+            "metadata": {
+                "description": "Subject of email alert"
+            }
+        },
+        "alertStatus": {
+            "type": "string",
+            "defaultValue": "true"
+        },
+        "alertCustomWebhookPayload": {
+            "type": "string",
+            "defaultValue": "{ \"alertname\":\"#alertrulename\", \"IncludeSearchResults\":true }",
+            "metadata": {
+                "description": "Custom WebHook Paylod, must be enclosed in { }"
+            }
         }
     },
-    {
-    "name":"[parameters('alertName')]",
-    "type":"Microsoft.Insights/scheduledQueryRules",
-    "apiVersion": "2018-04-16",
-    "location": "[resourceGroup().location]", 
-    "tags":{"[variables('alertTag')]": "Resource"},
-    "properties":{
-        "description": "[parameters('alertDescription')]",
-        "enabled": "[parameters('alertStatus')]",
-        "source": {
-            "query": "[variables('alertSource').Query]",
-            "dataSourceId": "[variables('alertSource').SourceId]",
-            "queryType":"[variables('alertSource').Type]"
+    "variables": {
+        "alertSource": {
+            "Query": "Event | where EventLog == \"Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational\"' | where EventID == 1003 | parse EventData with * \"<NotValidAfter>\" CertExpDate:datetime \"<\" * | project Computer, EventLevelName, RenderedDescription, CertExpDate, TimeGenerated",
+            "SourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('LAworkspaceName'))]",
+            "Type": "ResultCount"
         },
-        "schedule":{
-            "frequencyInMinutes": "[variables('alertSchedule').Frequency]",
-            "timeWindowInMinutes": "[variables('alertSchedule').Time]"
+        "alertTag": "[concat('hidden-link:', variables('alertSource').SourceId)]",
+        "alertSchedule": {
+            "Frequency": 1440,
+            "Time": 1440
         },
-        "action":{
-            "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
-            "severity":"[variables('alertActions').SeverityLevel]",
-            "throttlingInMin": "[variables('alertActions').SuppressTimeinMin]",
-            "aznsAction":{
-                "actionGroup": "[array(parameters('actionGroup').ActionGroup)]",
-                "emailSubject":"[parameters('actionGroup').Subject]",
-                "customWebhookPayload":"[parameters('actionGroup').Webhook]"
+        "alertActions": {
+            "SeverityLevel": "1",
+            "SuppressTimeinMin": 120
+        },
+        "alertTrigger": {
+            "Operator": "GreaterThan",
+            "Threshold": "1"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-11-01-preview",
+            "type": "Microsoft.OperationalInsights/workspaces/datasources",
+            "location": "[resourceGroup().location]",
+            "name": "[concat(parameters('LAworkspaceName'), '/', 'datasources')]",
+            "kind": "WindowsEvent",
+            "properties": {
+                "eventLogName": "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational",
+                "eventTypes": [
+                    {
+                        "eventType": "Error"
+                    },
+                    {
+                        "eventType": "Warning"
+                    },
+                    {
+                        "eventType": "Information"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('alertName')]",
+            "type": "Microsoft.Insights/scheduledQueryRules",
+            "apiVersion": "2018-04-16",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "[variables('alertTag')]": "Resource"
             },
-        "trigger":{
-                "thresholdOperator":"[variables('alertTrigger').Operator]",
-                "threshold":"[variables('alertTrigger').Threshold]"
+            "properties": {
+                "description": "[parameters('alertDescription')]",
+                "enabled": "[parameters('alertStatus')]",
+                "source": {
+                    "query": "[variables('alertSource').Query]",
+                    "dataSourceId": "[variables('alertSource').SourceId]",
+                    "queryType": "[variables('alertSource').Type]"
+                },
+                "schedule": {
+                    "frequencyInMinutes": "[variables('alertSchedule').Frequency]",
+                    "timeWindowInMinutes": "[variables('alertSchedule').Time]"
+                },
+                "action": {
+                    "odata.type": "Microsoft.WindowsAzure.Management.Monitoring.Alerts.Models.Microsoft.AppInsights.Nexus.DataContracts.Resources.ScheduledQueryRules.AlertingAction",
+                    "severity": "[variables('alertActions').SeverityLevel]",
+                    "throttlingInMin": "[variables('alertActions').SuppressTimeinMin]",
+                    "aznsAction": {
+                        "actionGroup": "[concat(resourcegroup().id, '/providers/microsoft.insights/actiongroups/', parameters('actionGroup'))]",
+                        "emailSubject": "[parameters('alertEmailSubject')]",
+                        "customWebhookPayload": "[parameters('alertCustomWebhookPayload')]"
+                    },
+                    "trigger": {
+                        "thresholdOperator": "[variables('alertTrigger').Operator]",
+                        "threshold": "[variables('alertTrigger').Threshold]"
+                    }
+                }
             }
         }
-    }
-  }
-]
+    ]
 }
